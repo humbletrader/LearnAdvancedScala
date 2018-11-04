@@ -4,7 +4,7 @@ import org.scalatest.FlatSpec
 
 import org.scalatest._
 
-class LinearizationSpec extends FlatSpec with Matchers{
+class LinearizationTest extends FlatSpec with Matchers{
 
   "constructors" should "be called from parent types to derived types" in {
     class C1{
@@ -35,7 +35,7 @@ class LinearizationSpec extends FlatSpec with Matchers{
     override def identification : String = "t2 " + super.identification
   }
 
-  "linearization" should "be done from right to left ( the reverse of constructor calls)" in {
+  "linearization" should "be done from right to left (the reverse of constructor calls)" in {
 
     class C2 extends T1 with T2 {
       override def identification : String = "c2 " + super.identification
@@ -46,7 +46,7 @@ class LinearizationSpec extends FlatSpec with Matchers{
   }
 
   it should "remove any type if it appears again to the right" in {
-    class C2A extends T2 {
+    class C2A extends T2 {git git
       override def identification: String = "c2a " +super.identification
     }
 
@@ -56,8 +56,6 @@ class LinearizationSpec extends FlatSpec with Matchers{
     }
 
     val c2 = new C2
-
-    //the linearization keeps only the rightmost t2 reference
 
     //C2                <- copy the type of the instance
     //C2 T2 C1          <- linearization of the right most type (T2)
