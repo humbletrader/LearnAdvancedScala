@@ -1,8 +1,6 @@
-package org.learn.advanced.scala
+package org.learn.advanced.scala.linearization
 
-import org.scalatest.FlatSpec
-
-import org.scalatest._
+import org.scalatest.{FlatSpec, _}
 
 class LinearizationTest extends FlatSpec with Matchers{
 
@@ -46,7 +44,7 @@ class LinearizationTest extends FlatSpec with Matchers{
   }
 
   it should "remove any type if it appears again to the right" in {
-    class C2A extends T2 {git git
+    class C2A extends T2 {
       override def identification: String = "c2a " +super.identification
     }
 
