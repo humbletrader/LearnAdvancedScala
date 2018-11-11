@@ -1,7 +1,8 @@
-package org.learn.advanced.scala.implicits
+package org.learn.advanced.scala.implicits.parameters
+
+import domain._
 
 import org.scalatest.{FlatSpec, Matchers}
-import org.learn.advanced.scala.implicits.domain._
 
 
 class ImplicitResolutionTest extends FlatSpec with Matchers {
@@ -35,6 +36,13 @@ class ImplicitResolutionTest extends FlatSpec with Matchers {
 
   it should "check in the package object" in {
     implicitly[Blah].id shouldEqual "object defined inside the package"
+  }
+
+  it should "check for singleton implicits in outer scopes" in {
+    //Scala objects can’t have companion objects for implicits.
+    //Because of this, implicits associated with the object’s type, that are desired on the implicit scope of that object’s type,
+    // must be provided from an outer scope
+    implicitly[MySingleton.type].toString shouldEqual "MySingletonAsString"
   }
 
 }

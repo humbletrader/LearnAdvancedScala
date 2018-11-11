@@ -1,4 +1,4 @@
-package org.learn.advanced.scala.implicits
+package org.learn.advanced.scala.implicits.parameters
 
 object domain {
 
@@ -22,13 +22,12 @@ object domain {
   //because Bar extends BarParent
   class Bar(val id: String) extends BarParent
 
-  object Singleton{
-    object NestedSingleton {
-      override def toString = "NestedSingleton"
-    }
 
-    implicit def blah = NestedSingleton
-    implicit def blahType : NestedSingleton.type = NestedSingleton
+  object MySingleton {
+      override def toString = "MySingletonAsString"
   }
+
+  implicit val singletonImplicitDefinedInOuterScope = MySingleton
+//  implicit val blahType : MySingleton.type = MySingleton //in scala 2.10
 
 }
