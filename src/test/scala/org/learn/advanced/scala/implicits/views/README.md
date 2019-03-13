@@ -7,4 +7,5 @@ Implicit views are used in two situations:
  ```scala 
  implicit def stringToFoo(x : String) = new { 
     def foo() : Unit = println("foo") 
- }```
+ }
+ ```
