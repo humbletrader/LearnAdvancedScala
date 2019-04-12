@@ -19,12 +19,19 @@ class LinearizationTest extends FlatSpec with Matchers{
     }
     val c2 = new ClassExtendingBothTraits //prints BaseClass TraitOne TraitTwo ClassExtendingBothTraits
 
-    //how linearization works ?
-    // ClassExtendingBothTraits
-    // ClassExtendingBothTraits with TraitTwo with BaseClass (evaluation of the rightmost type : TraitTwo)
-    // ClassExtendingBothTraits with TraitTwo with BaseClass with TraitOne with BaseClass (evaluation of the next rightmost type : TraitOne)
-    // ClassExtendingBothTraits with TraitTwo with _ with TraitOne with BaseClass (remove duplicates : keep the rightmost only)
-    // ClassExtendingBothTraits with TraitTwo with TraitOne with BaseClass
+    // how linearization works ?
+    // we iterate from left to right into the list of traits extended by this class (i.e TraitTwo, TraitOne)
+    // so Lin(CEBT) = Lin(TraitTwo) > Lin(TraitOne)
+    //
+    // Lin(TraitTwo) = TraitTwo -> BaseClass
+    // Lin(TraitOne) = TraitOne -> BaseClass
+    //
+    // TraitTwo > BaseClass > TraitOne > BaseClass
+    // we remove the duplicates (from right)
+    // TraitTwo > TraitOne > BaseClass
+    // so we have the hierarcy of ClassExtendingBothTraits > TraitTwo > TraitOne > BaseClass
+    // now the order of construction is exactly the opposite : BaseClass, TraitOne, TraitTwo, ClassExtendingBothTraits (as it is printed on the console)
+
   }
 
   class C1{
@@ -47,6 +54,18 @@ class LinearizationTest extends FlatSpec with Matchers{
 
     val c2 = new C2
     c2.identification shouldEqual "c2 t2 t1 c1 "
+
+    //linearization : T2, T1 (we start from left to right)
+    // Lin(T2) > Lin(T1)
+    //Lin (T2) = T2 > C1
+    //Lin (T1) = T1 > C1
+    //add Lin(T2) > Lin(T1) : T2 > C1 > T1 > C1
+    //remove duplicates (keep only the rightmost ones)
+    //T2 > T1 > C1
+    //so our hierarchy is : C2 > T2 > T1 > C1
+
+    // constructor calls C1 T1 T2 C2
+
   }
 
   it should "remove any type if it appears again to the right" in {
@@ -61,12 +80,12 @@ class LinearizationTest extends FlatSpec with Matchers{
 
     val c2 = new C2
 
-    //C2                <- copy the type of the instance
-    //C2 T2 C1          <- linearization of the right most type (T2)
-    //C2 T2 C1 T1 C1    <- linearization of T1
-    //C2 T2 C1 T1 C1 C2A T2 C1      <- linearization of C2A
-    //C2 _  _  T1 _  C2A T2 C1      <- remove duplicates of C1 and T2 and keep only the right most one
-    //C2 T1 C2A T2 C1               <- the result
+
+    //T2 C1          <- linearization of the right most type (T2)
+    //T2 C1 T1 C1    <- linearization of T1
+    //T2 C1 T1 C1 C2A T2 C1      <- linearization of C2A
+    //_  _  T1 _  C2A T2 C1      <- remove duplicates of C1 and T2 and keep only the right most one
+    //C2 > T1  > C2A >  T2 >  C1               <- the result
     c2.identification shouldEqual "c2 t1 c2a t2 c1 "
   }
 }
