@@ -80,7 +80,7 @@ class LinearizationTest extends FlatSpec with Matchers{
 
     val c2 = new C2
 
-
+    // C2 > Lin(T2) > Lin(T1) > Lin(C2A)
     //T2 C1          <- linearization of the right most type (T2)
     //T2 C1 T1 C1    <- linearization of T1
     //T2 C1 T1 C1 C2A T2 C1      <- linearization of C2A
