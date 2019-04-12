@@ -5,21 +5,27 @@ import org.scalatest.{FlatSpec, _}
 class LinearizationTest extends FlatSpec with Matchers{
 
   "constructors" should "be called from parent types to derived types" in {
-    class C1{
-      print("c1 ")
+    class BaseClass {
+      print("BaseClass ")
     }
-    trait T1 extends C1 {
-      print("t1 ")
+    trait TraitOne extends BaseClass {
+      print("TraitOne ")
     }
-    trait T2 extends C1 {
-      print("t2 ")
+    trait TraitTwo extends BaseClass {
+      print("TraitTwo ")
     }
-    class C2 extends T1 with T2 {
-      print("c2 ")
+    class ClassExtendingBothTraits extends TraitOne with TraitTwo {
+      print("ClassExtendingBothTraits ")
     }
-    val c2 = new C2 //prints c1 t1 t2 c2
-  }
+    val c2 = new ClassExtendingBothTraits //prints BaseClass TraitOne TraitTwo ClassExtendingBothTraits
 
+    //how linearization works ?
+    // ClassExtendingBothTraits
+    // ClassExtendingBothTraits with TraitTwo with BaseClass (evaluation of the rightmost type : TraitTwo)
+    // ClassExtendingBothTraits with TraitTwo with BaseClass with TraitOne with BaseClass (evaluation of the next rightmost type : TraitOne)
+    // ClassExtendingBothTraits with TraitTwo with _ with TraitOne with BaseClass (remove duplicates : keep the rightmost only)
+    // ClassExtendingBothTraits with TraitTwo with TraitOne with BaseClass
+  }
 
   class C1{
     def identification: String = "c1 "
@@ -45,12 +51,12 @@ class LinearizationTest extends FlatSpec with Matchers{
 
   it should "remove any type if it appears again to the right" in {
     class C2A extends T2 {
-      override def identification: String = "c2a " +super.identification
+      override def identification: String = "c2a " + super.identification
     }
 
     //so T2 should appear twice in the linearization process
     class C2 extends C2A with T1 with T2 {
-      override def identification: String = "c2 "+super.identification
+      override def identification: String = "c2 " + super.identification
     }
 
     val c2 = new C2
