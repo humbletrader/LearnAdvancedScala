@@ -20,18 +20,18 @@ class LinearizationTest extends FlatSpec with Matchers{
     val c2 = new ClassExtendingBothTraits //prints BaseClass TraitOne TraitTwo ClassExtendingBothTraits
 
     // how linearization works ?
-    // we iterate from left to right into the list of traits extended by this class (i.e TraitTwo, TraitOne)
+    // we iterate from right to left into the list of traits extended by this class (i.e TraitTwo, TraitOne)
     // so Lin(CEBT) = Lin(TraitTwo) > Lin(TraitOne)
     //
-    // Lin(TraitTwo) = TraitTwo -> BaseClass
-    // Lin(TraitOne) = TraitOne -> BaseClass
+    // Lin(TraitTwo) = TraitTwo -> BaseClass -> AnyRef -> Any
+    // Lin(TraitOne) = TraitOne -> BaseClass -> AnyRef -> Any
+    // TraitTwo > BaseClass > TraitOne > BaseClass -> AnyRef -> Any
     //
-    // TraitTwo > BaseClass > TraitOne > BaseClass
-    // we remove the duplicates (from right)
-    // TraitTwo > TraitOne > BaseClass
-    // so we have the hierarcy of ClassExtendingBothTraits > TraitTwo > TraitOne > BaseClass
+    // we remove the duplicates from right keeping only the rightmost duplicated values
+    // TraitTwo > TraitOne > BaseClass -> AnyRef -> Any
+    //
+    // so we have the hierarchy of ClassExtendingBothTraits > TraitTwo > TraitOne > BaseClass
     // now the order of construction is exactly the opposite : BaseClass, TraitOne, TraitTwo, ClassExtendingBothTraits (as it is printed on the console)
-
   }
 
   class C1{
@@ -55,14 +55,14 @@ class LinearizationTest extends FlatSpec with Matchers{
     val c2 = new C2
     c2.identification shouldEqual "c2 t2 t1 c1 "
 
-    //linearization : T2, T1 (we start from left to right)
+    // linearization : T2, T1 (we start from right to left)
     // Lin(T2) > Lin(T1)
-    //Lin (T2) = T2 > C1
-    //Lin (T1) = T1 > C1
-    //add Lin(T2) > Lin(T1) : T2 > C1 > T1 > C1
-    //remove duplicates (keep only the rightmost ones)
-    //T2 > T1 > C1
-    //so our hierarchy is : C2 > T2 > T1 > C1
+    // Lin (T2) = T2 > C1
+    // Lin (T1) = T1 > C1
+    // add Lin(T2) > Lin(T1) : T2 > C1 > T1 > C1
+    // remove duplicates (keep only the rightmost ones)
+    // T2 > T1 > C1
+    // so our hierarchy is : C2 > T2 > T1 > C1
 
     // constructor calls C1 T1 T2 C2
 
@@ -81,11 +81,45 @@ class LinearizationTest extends FlatSpec with Matchers{
     val c2 = new C2
 
     // C2 > Lin(T2) > Lin(T1) > Lin(C2A)
-    //T2 C1          <- linearization of the right most type (T2)
-    //T2 C1 T1 C1    <- linearization of T1
-    //T2 C1 T1 C1 C2A T2 C1      <- linearization of C2A
-    //_  _  T1 _  C2A T2 C1      <- remove duplicates of C1 and T2 and keep only the right most one
-    //C2 > T1  > C2A >  T2 >  C1               <- the result
+    // Lin(T2) = T2 C1
+    // Lin(T1) = T2 C1 T1 C1
+    // Lin(C2A) = T2 C1 T1 C1 C2A T2 C1
+    // Linearization with duplicates :
+    // C2 >     T2 > C1 >      T2 > C1 > T1 > C1 >        T2 > C1 > T1 > C1 > C2A > T2 > C1
+    // remove duplicates of C1 and T2 and keep only the right most one
+    // C2 >     __ > __ >      __ > __ > __ > __ >        __ > __ > T1 > __ > C2A > T2 > C1
+    // result :
+    // C2 > T1  > C2A >  T2 >  C1
     c2.identification shouldEqual "c2 t1 c2a t2 c1 "
   }
+
+  "the diamond problem" should "be solved through linearization " in {
+
+    trait Animal {
+      def legCount() : Int
+    }
+
+    trait TwoLegged extends Animal {
+      override def legCount(): Int = 2
+    }
+
+    trait FourLegged extends Animal {
+      override def legCount(): Int = 4
+    }
+
+    val test = new TwoLegged with FourLegged
+    //linearization of test  Lin(FourLegged) > Lin(TwoLegged)
+    // lin (FourLegged) = FourLegged > Animal > AnyRef > Any
+    // Lin (TwoLegged) = TwoLegged > Animal > AnyRef > Any
+    // FourLegged > Animal > AnyRef > Any > TwoLegged > Animal > AnyRef > Any
+    // remove duplicates (keep only the rightmost values)
+    // FourLegged > TwoLegged > Animal > AnyRef > Any
+    // so the FourLegged is the first to call when solving the legCount
+    test.legCount() shouldEqual 4
+
+    val test2 = new FourLegged with TwoLegged
+    test2.legCount() shouldEqual 2
+  }
+
+
 }
