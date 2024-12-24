@@ -8,7 +8,7 @@ class ViewBoundsTest extends FlatSpec with Matchers{
     def specialMethod : String = "this value is spacial"
   }
 
-  //this is the implicit function ( or implicit evidence) required by the fncWithViewBounds
+  //this is the implicit function (or implicit evidence) required by the fncWithViewBounds
   implicit def stringToSpecial(str: String) : SpecialType = new SpecialType
 
   def fncWithViewBounds[A <% SpecialType](x: A) : String = x.specialMethod
