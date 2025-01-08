@@ -2,7 +2,7 @@ package org.learn.advanced.scala.inheritance
 
 import org.scalatest.{FlatSpec, Matchers}
 
-class InheritanceTest extends FlatSpec with Matchers{ {
+class InheritanceTest extends FlatSpec with Matchers{
 
   trait Property{
       val name: String
@@ -23,6 +23,6 @@ class InheritanceTest extends FlatSpec with Matchers{ {
     val y = new {val name: String = "Hi2"} with Property
     y.toString shouldEqual "Property Hi2"
   }
-}
+
 
 }
