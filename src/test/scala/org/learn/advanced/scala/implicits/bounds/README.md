@@ -10,7 +10,7 @@ which is equivalent to
 
 
 # Context Bounds
-Requires and implicit value available with a given type
+Requires an implicit value available with a given type
 ```scala
     def fnc[A: B](x: A) = ???
 ```
